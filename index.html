@@ -1,273 +1,1119 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-	<title>SamLock Pro — Samsung FRP Lock Tool</title>
-	<meta name="generator" content="LibreOffice 26.2.3.2 (Windows)"/>
-	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="2026-06-05T16:24:14.571223800"/>
-	<meta name="" content=""/>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<style type="text/css">
-		td p { font-family: "var font-body"; orphans: 100 }
-		h1 { orphans: 100 }
-		h1.cjk { font-family: "var font-body" }
-		h1.ctl { font-family: "var font-body" }
-		p { font-family: "var font-body"; orphans: 100 }
-		h2 { orphans: 100 }
-		h3 { orphans: 100 }
-		h4 { orphans: 100 }
-		th p { font-family: "var font-body"; orphans: 100 }
-	</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SamLock Pro — Samsung FRP Lock Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* ── VARIABLES ── */
+    :root {
+      --bg:       #070b10;
+      --bg2:      #0d1520;
+      --bg3:      #111d2e;
+      --card:     #0f1923;
+      --border:   #1e3048;
+      --accent:   #00d4ff;
+      --accent2:  #0090b3;
+      --green:    #00ff88;
+      --red:      #ff3060;
+      --yellow:   #ffd000;
+      --text:     #e2eaf4;
+      --muted:    #5a7a9a;
+      --glow:     0 0 20px rgba(0,212,255,0.3);
+      --font-h:   'Rajdhani', sans-serif;
+      --font-mono:'Share Tech Mono', monospace;
+      --font-body:'Exo 2', sans-serif;
+    }
+
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: 0.4;
+    }
+
+    /* ── PAGES ── */
+    .page { display: none; min-height: 100vh; position: relative; z-index: 1; }
+    .page.active { display: flex; flex-direction: column; }
+
+    /* ── NAV ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 64px;
+      background: rgba(7,11,16,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo {
+      font-family: var(--font-h); font-size: 1.4rem; font-weight: 700;
+      color: var(--accent); letter-spacing: 2px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .nav-logo span { color: var(--text); }
+    .nav-links { display: flex; gap: 8px; align-items: center; }
+    .nav-links a {
+      font-family: var(--font-mono); font-size: 0.8rem;
+      color: var(--muted); text-decoration: none; padding: 6px 14px;
+      border: 1px solid transparent; border-radius: 4px;
+      transition: all 0.2s; cursor: pointer;
+    }
+    .nav-links a:hover { color: var(--accent); border-color: var(--border); }
+    .btn-nav {
+      font-family: var(--font-mono); font-size: 0.8rem;
+      background: var(--accent); color: var(--bg); border: none;
+      padding: 7px 18px; border-radius: 4px; cursor: pointer;
+      font-weight: 600; transition: all 0.2s;
+    }
+    .btn-nav:hover { background: var(--accent2); box-shadow: var(--glow); }
+
+    /* ── HERO ── */
+    .hero {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 6rem 2rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
+    }
+    .hero-badge {
+      font-family: var(--font-mono); font-size: 0.75rem;
+      color: var(--accent); border: 1px solid rgba(0,212,255,0.3);
+      padding: 5px 14px; border-radius: 2px; letter-spacing: 3px;
+      margin-bottom: 2rem; background: rgba(0,212,255,0.05);
+    }
+    .hero h1 {
+      font-family: var(--font-h); font-size: clamp(2.5rem, 7vw, 5rem);
+      font-weight: 800; line-height: 1.05; margin-bottom: 1.5rem;
+      letter-spacing: 1px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.1rem; color: var(--muted); max-width: 520px;
+      line-height: 1.7; margin-bottom: 2.5rem;
+    }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .btn-primary {
+      font-family: var(--font-h); font-size: 1rem; font-weight: 700;
+      letter-spacing: 2px; padding: 14px 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: var(--bg); border: none; border-radius: 4px; cursor: pointer;
+      transition: all 0.3s; text-transform: uppercase;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,255,0.4); }
+    .btn-secondary {
+      font-family: var(--font-h); font-size: 1rem; font-weight: 600;
+      letter-spacing: 2px; padding: 14px 32px;
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border); border-radius: 4px; cursor: pointer;
+      transition: all 0.3s; text-transform: uppercase;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: flex; justify-content: center; gap: 4rem;
+      padding: 2.5rem 2rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: var(--font-mono); font-size: 2rem;
+      color: var(--accent); display: block;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+    /* ── FEATURES ── */
+    .features-section {
+      padding: 6rem 2rem; max-width: 1100px; margin: 0 auto;
+    }
+    .section-title {
+      font-family: var(--font-h); font-size: 2.2rem; font-weight: 700;
+      text-align: center; margin-bottom: 3rem;
+      letter-spacing: 1px;
+    }
+    .section-title span { color: var(--accent); }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1px; border: 1px solid var(--border);
+    }
+    .feature-card {
+      padding: 2rem; background: var(--card);
+      border: 1px solid transparent;
+      transition: all 0.3s;
+    }
+    .feature-card:hover { border-color: var(--border); background: var(--bg3); }
+    .feature-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .feature-card h3 {
+      font-family: var(--font-h); font-size: 1.1rem; font-weight: 600;
+      letter-spacing: 1px; margin-bottom: 0.5rem; color: var(--text);
+    }
+    .feature-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── PRICING ── */
+    .pricing-section {
+      padding: 6rem 2rem; background: var(--bg2);
+    }
+    .pricing-grid {
+      display: flex; gap: 1.5rem; justify-content: center;
+      flex-wrap: wrap; max-width: 900px; margin: 0 auto;
+    }
+    .pricing-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 4px; padding: 2.5rem 2rem;
+      text-align: center; min-width: 220px; flex: 1; max-width: 260px;
+      position: relative; transition: all 0.3s;
+    }
+    .pricing-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: var(--glow); }
+    .pricing-card.popular {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, var(--bg3), var(--card));
+    }
+    .popular-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      font-family: var(--font-mono); font-size: 0.7rem;
+      background: var(--accent); color: var(--bg);
+      padding: 3px 12px; border-radius: 2px; letter-spacing: 2px;
+    }
+    .pricing-credits {
+      font-family: var(--font-mono); font-size: 3rem;
+      color: var(--accent); font-weight: 700; line-height: 1;
+    }
+    .pricing-credits span { font-size: 1rem; color: var(--muted); }
+    .pricing-label {
+      font-size: 0.8rem; color: var(--muted); letter-spacing: 2px;
+      text-transform: uppercase; margin: 0.5rem 0 1.5rem;
+    }
+    .pricing-price {
+      font-family: var(--font-h); font-size: 1.8rem; font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+    .pricing-price small { font-size: 0.9rem; color: var(--muted); }
+    .pricing-features { list-style: none; text-align: left; margin-bottom: 2rem; }
+    .pricing-features li {
+      font-size: 0.85rem; color: var(--muted);
+      padding: 5px 0; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .pricing-features li::before { content: '▸'; color: var(--accent); }
+    .btn-buy {
+      width: 100%; font-family: var(--font-h); font-size: 0.95rem;
+      font-weight: 700; letter-spacing: 2px; padding: 12px;
+      background: transparent; color: var(--accent);
+      border: 1px solid var(--accent); border-radius: 4px; cursor: pointer;
+      transition: all 0.2s; text-transform: uppercase;
+    }
+    .btn-buy:hover { background: var(--accent); color: var(--bg); }
+    .pricing-card.popular .btn-buy { background: var(--accent); color: var(--bg); }
+
+    /* ── AUTH PAGE ── */
+    .auth-page {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 2rem; min-height: 100vh;
+      background: radial-gradient(ellipse at 30% 50%, rgba(0,212,255,0.05) 0%, transparent 60%);
+    }
+    .auth-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 4px; padding: 3rem 2.5rem; width: 100%; max-width: 440px;
+    }
+    .auth-logo {
+      font-family: var(--font-h); font-size: 1.5rem; font-weight: 700;
+      color: var(--accent); text-align: center; letter-spacing: 3px;
+      margin-bottom: 0.5rem;
+    }
+    .auth-sub { text-align: center; color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
+    .auth-tabs {
+      display: flex; border: 1px solid var(--border); border-radius: 4px;
+      margin-bottom: 2rem; overflow: hidden;
+    }
+    .auth-tab {
+      flex: 1; padding: 10px; text-align: center;
+      font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 1px;
+      cursor: pointer; transition: all 0.2s; color: var(--muted);
+      background: transparent; border: none;
+    }
+    .auth-tab.active { background: var(--accent); color: var(--bg); font-weight: 700; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-label {
+      display: block; font-family: var(--font-mono); font-size: 0.75rem;
+      color: var(--muted); letter-spacing: 1px; margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%; padding: 12px 14px; background: var(--bg2);
+      border: 1px solid var(--border); border-radius: 4px;
+      color: var(--text); font-family: var(--font-mono); font-size: 0.9rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--accent); }
+    .form-input::placeholder { color: var(--muted); }
+    .btn-submit {
+      width: 100%; padding: 14px; margin-top: 0.5rem;
+      font-family: var(--font-h); font-size: 1rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: var(--bg); border: none; border-radius: 4px; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-submit:hover { box-shadow: 0 6px 24px rgba(0,212,255,0.4); transform: translateY(-1px); }
+    .auth-status {
+      text-align: center; font-size: 0.85rem; margin-top: 1rem;
+      min-height: 20px; font-family: var(--font-mono);
+    }
+    .auth-status.error { color: var(--red); }
+    .auth-status.success { color: var(--green); }
+
+    /* ── DASHBOARD ── */
+    .dashboard {
+      flex: 1; display: flex; flex-direction: column;
+    }
+    .dash-header {
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .dash-greeting {
+      font-family: var(--font-h); font-size: 1.4rem; font-weight: 600;
+    }
+    .dash-greeting span { color: var(--accent); }
+    .dash-credit-badge {
+      font-family: var(--font-mono); font-size: 0.9rem;
+      background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3);
+      color: var(--accent); padding: 8px 18px; border-radius: 4px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dash-content {
+      flex: 1; display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 0; max-height: calc(100vh - 128px); overflow: hidden;
+    }
+    .dash-sidebar {
+      background: var(--bg2); border-right: 1px solid var(--border);
+      padding: 1.5rem; overflow-y: auto;
+    }
+    .sidebar-section { margin-bottom: 2rem; }
+    .sidebar-section h4 {
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted);
+      letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem;
+      padding-bottom: 6px; border-bottom: 1px solid var(--border);
+    }
+    .sidebar-nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 4px; cursor: pointer;
+      font-size: 0.9rem; color: var(--muted); transition: all 0.2s;
+      margin-bottom: 2px;
+    }
+    .sidebar-nav-item:hover, .sidebar-nav-item.active {
+      background: rgba(0,212,255,0.08); color: var(--accent);
+    }
+    .dash-main { padding: 2rem; overflow-y: auto; }
+
+    /* Stats cards */
+    .stats-cards {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1.5rem;
+    }
+    .stat-card-label {
+      font-family: var(--font-mono); font-size: 0.7rem;
+      color: var(--muted); letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .stat-card-value {
+      font-family: var(--font-mono); font-size: 2rem; color: var(--accent);
+      font-weight: 700;
+    }
+    .stat-card-sub { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+
+    /* History table */
+    .history-section { background: var(--card); border: 1px solid var(--border); border-radius: 4px; }
+    .history-header {
+      padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted);
+      letter-spacing: 1px; text-transform: uppercase;
+    }
+    .history-table { width: 100%; border-collapse: collapse; }
+    .history-table th {
+      padding: 10px 16px; text-align: left;
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted);
+      letter-spacing: 1px; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-table td {
+      padding: 12px 16px; font-size: 0.85rem;
+      border-bottom: 1px solid rgba(30,48,72,0.5);
+    }
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 2px;
+      font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600;
+    }
+    .badge-success { background: rgba(0,255,136,0.1); color: var(--green); border: 1px solid rgba(0,255,136,0.3); }
+    .badge-fail { background: rgba(255,48,96,0.1); color: var(--red); border: 1px solid rgba(255,48,96,0.3); }
+
+    /* Buy credits panel */
+    .buy-panel { display: none; }
+    .buy-panel.active { display: block; }
+    .main-panel { display: none; }
+    .main-panel.active { display: block; }
+    .admin-panel { display: none; }
+    .admin-panel.active { display: block; }
+
+    /* ── ADMIN ── */
+    .admin-section { margin-bottom: 2rem; }
+    .admin-section h3 {
+      font-family: var(--font-h); font-size: 1.1rem; font-weight: 600;
+      color: var(--yellow); margin-bottom: 1rem; letter-spacing: 1px;
+    }
+    .admin-form-row {
+      display: flex; gap: 10px; align-items: flex-end;
+    }
+    .admin-form-row .form-group { flex: 1; margin: 0; }
+    .btn-admin {
+      padding: 12px 20px; background: var(--yellow); color: var(--bg);
+      border: none; border-radius: 4px; cursor: pointer;
+      font-family: var(--font-h); font-weight: 700; font-size: 0.9rem;
+      letter-spacing: 1px; white-space: nowrap; transition: all 0.2s;
+    }
+    .btn-admin:hover { background: #e6bc00; }
+    .users-table { width: 100%; border-collapse: collapse; }
+    .users-table th {
+      padding: 10px 14px; text-align: left;
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted);
+      letter-spacing: 1px; text-transform: uppercase;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+    }
+    .users-table td {
+      padding: 10px 14px; font-size: 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .btn-del {
+      padding: 4px 12px; background: transparent; color: var(--red);
+      border: 1px solid var(--red); border-radius: 4px; cursor: pointer;
+      font-size: 0.75rem; transition: all 0.2s;
+    }
+    .btn-del:hover { background: var(--red); color: white; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;
+      font-family: var(--font-mono); font-size: 0.85rem;
+      padding: 12px 20px; border-radius: 4px; border-left: 3px solid;
+      background: var(--card); box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      transform: translateX(200%); transition: transform 0.3s;
+      max-width: 360px;
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+    .toast.info { border-color: var(--accent); color: var(--accent); }
+
+    /* ── DOWNLOAD SECTION ── */
+    .download-section {
+      padding: 6rem 2rem; text-align: center;
+      background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 100%);
+    }
+    .download-box {
+      display: inline-block; background: var(--card);
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 3rem 4rem; max-width: 500px;
+    }
+    .download-icon { font-size: 4rem; margin-bottom: 1rem; }
+    .download-box h3 {
+      font-family: var(--font-h); font-size: 1.5rem; font-weight: 700;
+      margin-bottom: 0.5rem; letter-spacing: 1px;
+    }
+    .download-box p { color: var(--muted); margin-bottom: 1.5rem; font-size: 0.9rem; }
+    .download-info {
+      display: flex; gap: 2rem; justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .dl-info-item { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+    .dl-info-item strong { color: var(--text); display: block; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg2); border-top: 1px solid var(--border);
+      padding: 2rem; text-align: center;
+      font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted);
+    }
+    footer span { color: var(--accent); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .stats-bar { gap: 2rem; flex-wrap: wrap; }
+      .dash-content { grid-template-columns: 1fr; }
+      .dash-sidebar { display: none; }
+      .stats-cards { grid-template-columns: 1fr; }
+      .admin-form-row { flex-direction: column; }
+    }
+  </style>
 </head>
-<body lang="en-US" dir="ltr">
-<div id="page-home" dir="ltr"><p style="margin-bottom: 0cm">🔒
-	SAMLOCK</p>
-	<p style="margin-bottom: 0cm">Features Pricing Login GET STARTED 
-	</p>
-	<p>⚡ Bypass · Sam Lock</p>
-	<h1 class="western">Unlock your<br/>
-<em>Samsung in 1 click</em></h1>
-	<p style="margin-bottom: 0cm">Professional tool Unlock your
-	Samsung with a USB 
-	</p>
-	<p style="margin-bottom: 0cm">CREATE AN ACCOUNT ⬇ DOWNLOAD 
-	</p>
-	<p style="margin-bottom: 0cm"><a name="counter1"></a>0 Devices
-	protected 
-	</p>
-	<p style="margin-bottom: 0cm">5 Credits per operation 
-	</p>
-	<p style="margin-bottom: 0cm">100% Success rate 
-	</p>
-	<p>24/7 Support 
-	</p>
-	<h2>Why choose SamLock Pro?</h2>
-	<p>🔒</p>
-	<h3>FRP UNLOCK</h3>
-	<p>Bypass FRP whenever you want</p>
-	<p>⚡</p>
-	<h3>USB CONNECTION</h3>
-	<p>Automatic detection via ADB. Compatible with all Samsung
-	Android devices. No root required.</p>
-	<p>💳</p>
-	<h3>CREDIT SYSTEM</h3>
-	<p>Purchase credits in advance. 5 credits per operation. No
-	subscription, pay as you go.</p>
-	<p>🖥️</p>
-	<h3>WINDOWS SOFTWARE</h3>
-	<p>Intuitive Windows application with professional interface.
-	Real-time logs, progress bar.</p>
-	<p>🔐</p>
-	<h3>SECURE ACCOUNT</h3>
-	<p>Your credits are linked to your account. Access from
-	any device.</p>
-	<h2>Buy Credits</h2>
-	<p style="margin-bottom: 0cm">15 credits</p>
-	<p style="margin-bottom: 0cm">STARTER</p>
-	<p>€9.99 <font size="2" style="font-size: 10pt">/ pac</font><font size="2" style="font-size: 10pt">k</font></p>
-	<ul>
-		<li><p style="margin-bottom: 0cm">Email support 
-		</p></li>
-		<li><p>Unlimited validity 
-		</p></li>
-	</ul>
-	<p style="margin-bottom: 0cm">BUY 
-	</p>
-	<p style="margin-bottom: 0cm">POPULAR</p>
-	<p style="margin-bottom: 0cm">35 credits</p>
-	<p style="margin-bottom: 0cm">PRO</p>
-	<p>€25.99 <font size="2" style="font-size: 10pt">/ pack </font><font size="2" style="font-size: 10pt">promo
-	instead of €30</font></p>
-	<p style="margin-bottom: 0cm">BUY 
-	</p>
-	<p style="margin-bottom: 0cm">1000 credits</p>
-	<p style="margin-bottom: 0cm">EXPERT</p>
-	<p>€84.99 <font size="2" style="font-size: 10pt">/ pac</font><font size="2" style="font-size: 10pt">k</font></p>
-	<p style="margin-bottom: 0cm">BUY 
-	</p>
-	<p>💻</p>
-	<h3>WINDOWS SOFTWARE</h3>
-	<p>Download the Windows application to start protecting
-	your Samsung devices.</p>
-	<p style="margin-bottom: 0cm"><strong>Windows 10/11</strong>Required OS</p>
-	<p style="margin-bottom: 0cm"><strong>Python 3.10</strong><strong>+
-	</strong>Runtime</p>
-	<p style="margin-bottom: 0cm"><strong>ADB included </strong>Drivers</p>
-	<p>⬇ DOWNLOAD v1.0 
-	</p>
-	<p>© 2026 SamLock Pro</p>
+<body>
+
+<!-- ══════════ HOME PAGE ══════════ -->
+<div id="page-home" class="page active">
+  <nav>
+    <div class="nav-logo">🔒 SAM<span>LOCK</span></div>
+    <div class="nav-links">
+      <a onclick="scrollTo('.features-section')">Fonctions</a>
+      <a onclick="scrollTo('.pricing-section')">Tarifs</a>
+      <a onclick="showPage('page-auth')">Connexion</a>
+      <button class="btn-nav" onclick="showPage('page-auth')">COMMENCER</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-badge">⚡ ANTI-VOL · SAMSUNG PROTECTION TOOL</div>
+    <h1>Verrouillez votre<br/><em>Samsung en 1 clic</em></h1>
+    <p>Outil professionnel anti-vol. Bloquez votre Samsung à distance via USB et forcez un FRP lock — le voleur devra reflasher l'appareil.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="showPage('page-auth')">CRÉER UN COMPTE</button>
+      <button class="btn-secondary" onclick="document.querySelector('.download-section').scrollIntoView()">⬇ TÉLÉCHARGER</button>
+    </div>
+  </section>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-num" id="counter1">0</span>
+      <span class="stat-label">Appareils protégés</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">5</span>
+      <span class="stat-label">Crédits par opération</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">100%</span>
+      <span class="stat-label">Taux de réussite</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">24/7</span>
+      <span class="stat-label">Support</span>
+    </div>
+  </div>
+
+  <section class="features-section">
+    <h2 class="section-title">Pourquoi choisir <span>SamLock Pro</span> ?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>FRP LOCK FORCÉ</h3>
+        <p>Force l'activation du verrou FRP sur la partition persistante. L'appareil demande un compte Google au redémarrage.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>CONNEXION USB</h3>
+        <p>Détection automatique via ADB. Compatible avec tous les Samsung Android. Aucun root requis.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💳</div>
+        <h3>SYSTÈME CRÉDITS</h3>
+        <p>Achetez des crédits à l'avance. 5 crédits par opération. Pas d'abonnement, payez ce que vous utilisez.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🖥️</div>
+        <h3>LOGICIEL WINDOWS</h3>
+        <p>Application Windows intuitive avec interface professionnelle. Logs en temps réel, barre de progression.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>COMPTE SÉCURISÉ</h3>
+        <p>Vos crédits sont liés à votre compte. Accédez depuis n'importe quel appareil.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>ANTI-VOL LÉGAL</h3>
+        <p>Outil conçu pour les propriétaires légitimes. Bloquez votre propre téléphone volé.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing-section">
+    <h2 class="section-title">Acheter des <span>Crédits</span></h2>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-credits">10 <span>crédits</span></div>
+        <div class="pricing-label">STARTER</div>
+        <div class="pricing-price">4.99€ <small>/ pack</small></div>
+        <ul class="pricing-features">
+          <li>2 opérations de lock</li>
+          <li>Support email</li>
+          <li>Validité illimitée</li>
+        </ul>
+        <button class="btn-buy" onclick="showPage('page-auth')">ACHETER</button>
+      </div>
+      <div class="pricing-card popular">
+        <div class="popular-badge">POPULAIRE</div>
+        <div class="pricing-credits">30 <span>crédits</span></div>
+        <div class="pricing-label">PRO</div>
+        <div class="pricing-price">9.99€ <small>/ pack</small></div>
+        <ul class="pricing-features">
+          <li>6 opérations de lock</li>
+          <li>Support prioritaire</li>
+          <li>Validité illimitée</li>
+          <li>-33% vs Starter</li>
+        </ul>
+        <button class="btn-buy" onclick="showPage('page-auth')">ACHETER</button>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-credits">100 <span>crédits</span></div>
+        <div class="pricing-label">EXPERT</div>
+        <div class="pricing-price">24.99€ <small>/ pack</small></div>
+        <ul class="pricing-features">
+          <li>20 opérations de lock</li>
+          <li>Support VIP</li>
+          <li>Validité illimitée</li>
+          <li>-50% vs Starter</li>
+        </ul>
+        <button class="btn-buy" onclick="showPage('page-auth')">ACHETER</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="download-section">
+    <div class="download-box">
+      <div class="download-icon">💻</div>
+      <h3>LOGICIEL WINDOWS</h3>
+      <p>Téléchargez l'application Windows pour commencer à protéger vos appareils Samsung.</p>
+      <div class="download-info">
+        <div class="dl-info-item"><strong>Windows 10/11</strong>OS requis</div>
+        <div class="dl-info-item"><strong>Python 3.10+</strong>Runtime</div>
+        <div class="dl-info-item"><strong>ADB inclus</strong>Drivers</div>
+      </div>
+      <button class="btn-primary" onclick="showToast('Téléchargement disponible après inscription', 'info')">
+        ⬇ TÉLÉCHARGER v1.0
+      </button>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 <span>SamLock Pro</span> — Outil anti-vol Samsung. Usage légal uniquement.</p>
+  </footer>
 </div>
-<div id="page-auth" dir="ltr"><p style="margin-bottom: 0cm">🔒
-	SAMLOCK</p>
-	<p style="margin-bottom: 0cm">← Back 
-	</p>
-	<p style="margin-bottom: 0cm">🔒 SAMLOCK PRO</p>
-	<p style="margin-bottom: 0cm">Log in to access your
-	dashboard</p>
-	<p style="margin-bottom: 0cm">LOGIN SIGNUP 
-	</p>
-	<div id="form-login" dir="ltr"><p style="margin-bottom: 0cm">USERNAME 
-		</p>
-		<p style="margin-bottom: 0cm">PASSWORD 
-		</p>
-		<p style="margin-bottom: 0cm">LOG IN 
-		</p>
-	</div>
-	<div id="form-register" dir="ltr"><p style="margin-bottom: 0cm">USERNAME 
-		</p>
-		<p style="margin-bottom: 0cm">EMAIL 
-		</p>
-		<p style="margin-bottom: 0cm">PASSWORD 
-		</p>
-		<p style="margin-bottom: 0cm">CONFIRM PASSWORD 
-		</p>
-		<p style="margin-bottom: 0cm">CREATE ACCOUNT 
-		</p>
-	</div>
-	<div id="auth-status" dir="ltr"><p style="margin-bottom: 0cm"><br/>
 
-		</p>
-	</div>
+<!-- ══════════ AUTH PAGE ══════════ -->
+<div id="page-auth" class="page">
+  <nav>
+    <div class="nav-logo" onclick="showPage('page-home')" style="cursor:pointer">🔒 SAM<span>LOCK</span></div>
+    <div class="nav-links">
+      <a onclick="showPage('page-home')">← Retour</a>
+    </div>
+  </nav>
+  <div class="auth-page">
+    <div class="auth-box">
+      <div class="auth-logo">🔒 SAMLOCK PRO</div>
+      <div class="auth-sub">Connectez-vous pour accéder à votre tableau de bord</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">CONNEXION</button>
+        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">INSCRIPTION</button>
+      </div>
+      <!-- Login form -->
+      <div id="form-login">
+        <div class="form-group">
+          <label class="form-label">NOM D'UTILISATEUR</label>
+          <input type="text" class="form-input" id="login-user" placeholder="votre_pseudo" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">MOT DE PASSE</label>
+          <input type="password" class="form-input" id="login-pass" placeholder="••••••••" />
+        </div>
+        <button class="btn-submit" onclick="doLogin()">SE CONNECTER</button>
+      </div>
+      <!-- Register form -->
+      <div id="form-register" style="display:none">
+        <div class="form-group">
+          <label class="form-label">NOM D'UTILISATEUR</label>
+          <input type="text" class="form-input" id="reg-user" placeholder="votre_pseudo" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">EMAIL</label>
+          <input type="email" class="form-input" id="reg-email" placeholder="email@exemple.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">MOT DE PASSE</label>
+          <input type="password" class="form-input" id="reg-pass" placeholder="min. 6 caractères" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">CONFIRMER MOT DE PASSE</label>
+          <input type="password" class="form-input" id="reg-pass2" placeholder="••••••••" />
+        </div>
+        <button class="btn-submit" onclick="doRegister()">CRÉER MON COMPTE</button>
+      </div>
+      <div class="auth-status" id="auth-status"></div>
+    </div>
+  </div>
 </div>
-<div id="page-dashboard" dir="ltr"><p style="margin-bottom: 0cm">🔒
-	SAMLOCK</p>
-	<p style="margin-bottom: 0cm"><a name="nav-username"></a>Logout
-		</p>
-	<p style="margin-bottom: 0cm"><a name="dash-username"></a>Hello,
-	User 👋</p>
-	<p><a name="dash-credits"></a>💳 0 credits available 
-	</p>
-	<h4>Navigation</h4>
-	<div id="nav-main" dir="ltr"><p>📊 Dashboard 
-		</p>
-	</div>
-	<div id="nav-buy" dir="ltr"><p>💳 Buy credits 
-		</p>
-	</div>
-	<div id="nav-admin" dir="ltr"><p>⚙️ Administration 
-		</p>
-	</div>
-	<h4>Software</h4>
-	<p style="margin-bottom: 0cm">⬇ Download app 
-	</p>
-	<p style="margin-bottom: 0cm">📖 Documentation 
-	</p>
-	<div id="panel-main" dir="ltr"><p style="margin-bottom: 0cm">Remaining credits</p>
-		<div id="stat-credits" dir="ltr"><p style="margin-bottom: 0cm">0</p>
-		</div>
-		<p style="margin-bottom: 0cm">5 credits per operation</p>
-		<p style="margin-bottom: 0cm">Total operations</p>
-		<div id="stat-ops" dir="ltr"><p style="margin-bottom: 0cm">0</p>
-		</div>
-		<p style="margin-bottom: 0cm">Since account creation</p>
-		<p style="margin-bottom: 0cm">Account status</p>
-		<p style="margin-bottom: 0cm">✔ ACTIVE</p>
-		<div id="stat-role" dir="ltr"><p style="margin-bottom: 0cm">User</p>
-		</div>
-		<p style="margin-bottom: 0cm">OPERATION HISTORY</p>
-		<table cellpadding="2" cellspacing="2">
-			<thead>
-				<tr>
-					<th style="border: none; padding: 0cm"><p>Date</p>
-					</th>
-					<th style="border: none; padding: 0cm"><p>Device</p>
-					</th>
-					<th style="border: none; padding: 0cm"><p>Credits</p>
-					</th>
-					<th style="border: none; padding: 0cm"><p><a name="history-body"></a>
-						Status</p>
-					</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td colspan="4" style="border: none; padding: 0cm"><p align="center">
-						<font face="var font-mono">No operations
-						performed.<br/>
-Download the software to get started. </font>
-						</p>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<p><br/>
-<br/>
 
-		</p>
-	</div>
-	<div id="panel-buy" dir="ltr"><h2 align="left">Buy Credits</h2>
-		<p style="margin-bottom: 0cm">15 credits</p>
-		<p style="margin-bottom: 0cm">STARTER</p>
-		<p>€9.99</p>
-		<p style="margin-bottom: 0cm">BUY 
-		</p>
-		<p style="margin-bottom: 0cm">POPULAR</p>
-		<p style="margin-bottom: 0cm">35 credits</p>
-		<p style="margin-bottom: 0cm">PRO</p>
-		<p>€25.99 
-		</p>
-		<p style="margin-bottom: 0cm">BUY 
-		</p>
-		<p style="margin-bottom: 0cm">1000 credits</p>
-		<p style="margin-bottom: 0cm">EXPERT</p>
-		<p>€84.99</p>
-		<p>BUY 
-		</p>
-		<p>💬 <font face="var font-mono">To purchase credits,
-		contact the admin. </font>
-		</p>
-	</div>
-	<div id="panel-admin" dir="ltr"><h2 align="left">⚙ Administration</h2>
-		<h3>➕ ADD CREDITS</h3>
-		<p style="margin-bottom: 0cm"><span style="display: inline-block; border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: none; padding-top: 0.05cm; padding-bottom: 0.05cm; padding-left: 0.05cm; padding-right: 0cm">USERNAME 
-		</span>
-		</p>
-		<p style="margin-bottom: 0cm"><span style="display: inline-block; border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: none; padding-top: 0.05cm; padding-bottom: 0.05cm; padding-left: 0.05cm; padding-right: 0cm">CREDITS 
-		</span>
-		</p>
-		<p style="margin-bottom: 0cm"><span style="display: inline-block; border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: none; padding-top: 0.05cm; padding-bottom: 0.05cm; padding-left: 0.05cm; padding-right: 0cm">ADD 
-		</span>
-		</p>
-		<div id="admin-status" dir="ltr"><p style="margin-bottom: 0cm"><br/>
+<!-- ══════════ DASHBOARD PAGE ══════════ -->
+<div id="page-dashboard" class="page">
+  <nav>
+    <div class="nav-logo">🔒 SAM<span>LOCK</span></div>
+    <div class="nav-links">
+      <span id="nav-username" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--muted)"></span>
+      <a onclick="logout()" style="color:var(--red)">Déconnexion</a>
+    </div>
+  </nav>
+  <div class="dashboard">
+    <div class="dash-header">
+      <div class="dash-greeting">Bonjour, <span id="dash-username">Utilisateur</span> 👋</div>
+      <div class="dash-credit-badge">
+        💳 <span id="dash-credits">0</span> crédits disponibles
+      </div>
+    </div>
+    <div class="dash-content">
+      <!-- Sidebar -->
+      <div class="dash-sidebar">
+        <div class="sidebar-section">
+          <h4>Navigation</h4>
+          <div class="sidebar-nav-item active" onclick="showPanel('main')" id="nav-main">
+            📊 Tableau de bord
+          </div>
+          <div class="sidebar-nav-item" onclick="showPanel('buy')" id="nav-buy">
+            💳 Acheter des crédits
+          </div>
+          <div class="sidebar-nav-item" id="nav-admin" style="display:none" onclick="showPanel('admin')">
+            ⚙️ Administration
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h4>Logiciel</h4>
+          <div class="sidebar-nav-item" onclick="showToast('Téléchargement disponible bientôt', 'info')">
+            ⬇ Télécharger l'app
+          </div>
+          <div class="sidebar-nav-item" onclick="showToast('Documentation en cours', 'info')">
+            📖 Documentation
+          </div>
+        </div>
+      </div>
 
-			</p>
-		</div>
-		<h3>👥 USER LIST</h3>
-		<table cellpadding="2" cellspacing="2">
-			<thead>
-				<tr>
-					<th style="border: none; padding: 0cm"><p>User</p>
-					</th>
-					<th style="border: none; padding: 0cm"><p>Email</p>
-					</th>
-					<th style="border: none; padding: 0cm"><p>Credits</p>
-					</th>
-					<th style="border: none; padding: 0cm"><p>Role</p>
-					</th>
-					<th style="border: none; padding: 0cm"><p><a name="admin-users-body"></a>
-						Actions</p>
-					</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td colspan="5" style="border: none; padding: 0cm"><p align="center">
-						Loading...</p>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<p><br/>
-<br/>
+      <!-- Main content -->
+      <div class="dash-main">
 
-		</p>
-	</div>
+        <!-- MAIN PANEL -->
+        <div class="main-panel active" id="panel-main">
+          <div class="stats-cards">
+            <div class="stat-card">
+              <div class="stat-card-label">Crédits restants</div>
+              <div class="stat-card-value" id="stat-credits">0</div>
+              <div class="stat-card-sub">5 crédits par opération</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-label">Opérations totales</div>
+              <div class="stat-card-value" id="stat-ops">0</div>
+              <div class="stat-card-sub">Depuis la création du compte</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-label">Statut compte</div>
+              <div class="stat-card-value" style="font-size:1.2rem;color:var(--green)">✔ ACTIF</div>
+              <div class="stat-card-sub" id="stat-role">Utilisateur</div>
+            </div>
+          </div>
+
+          <div class="history-section">
+            <div class="history-header">HISTORIQUE DES OPÉRATIONS</div>
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Appareil</th>
+                  <th>Crédits</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody id="history-body">
+                <tr>
+                  <td colspan="4" style="text-align:center;color:var(--muted);padding:2rem;font-family:var(--font-mono);font-size:0.85rem">
+                    Aucune opération effectuée.<br/>Téléchargez le logiciel pour commencer.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- BUY PANEL -->
+        <div class="buy-panel" id="panel-buy">
+          <h2 class="section-title" style="text-align:left;margin-bottom:2rem">Acheter des <span>Crédits</span></h2>
+          <div class="pricing-grid" style="justify-content:flex-start;max-width:100%">
+            <div class="pricing-card" style="max-width:220px">
+              <div class="pricing-credits">10 <span>crédits</span></div>
+              <div class="pricing-label">STARTER</div>
+              <div class="pricing-price">4.99€</div>
+              <ul class="pricing-features">
+                <li>2 opérations</li>
+                <li>Support email</li>
+              </ul>
+              <button class="btn-buy" onclick="showToast('Paiement en cours d\\'intégration', 'info')">ACHETER</button>
+            </div>
+            <div class="pricing-card popular" style="max-width:220px">
+              <div class="popular-badge">POPULAIRE</div>
+              <div class="pricing-credits">30 <span>crédits</span></div>
+              <div class="pricing-label">PRO</div>
+              <div class="pricing-price">9.99€</div>
+              <ul class="pricing-features">
+                <li>6 opérations</li>
+                <li>Support prioritaire</li>
+              </ul>
+              <button class="btn-buy" onclick="showToast('Paiement en cours d\\'intégration', 'info')">ACHETER</button>
+            </div>
+            <div class="pricing-card" style="max-width:220px">
+              <div class="pricing-credits">100 <span>crédits</span></div>
+              <div class="pricing-label">EXPERT</div>
+              <div class="pricing-price">24.99€</div>
+              <ul class="pricing-features">
+                <li>20 opérations</li>
+                <li>Support VIP</li>
+              </ul>
+              <button class="btn-buy" onclick="showToast('Paiement en cours d\\'intégration', 'info')">ACHETER</button>
+            </div>
+          </div>
+          <p style="color:var(--muted);font-size:0.85rem;margin-top:2rem;font-family:var(--font-mono)">
+            💬 Pour acheter des crédits, contactez l'admin ou attendez l'intégration du paiement en ligne.
+          </p>
+        </div>
+
+        <!-- ADMIN PANEL -->
+        <div class="admin-panel" id="panel-admin">
+          <h2 class="section-title" style="text-align:left;margin-bottom:2rem;color:var(--yellow)">⚙ Administration</h2>
+
+          <div class="admin-section">
+            <h3>➕ AJOUTER DES CRÉDITS</h3>
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
+              <div class="admin-form-row">
+                <div class="form-group">
+                  <label class="form-label">NOM D'UTILISATEUR</label>
+                  <input type="text" class="form-input" id="admin-target" placeholder="nom_utilisateur" />
+                </div>
+                <div class="form-group" style="max-width:140px">
+                  <label class="form-label">CRÉDITS</label>
+                  <input type="number" class="form-input" id="admin-amount" placeholder="30" min="1" />
+                </div>
+                <button class="btn-admin" onclick="adminAddCredits()">AJOUTER</button>
+              </div>
+              <div id="admin-status" style="margin-top:0.8rem;font-family:var(--font-mono);font-size:0.85rem"></div>
+            </div>
+          </div>
+
+          <div class="admin-section">
+            <h3>👥 LISTE DES UTILISATEURS</h3>
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden">
+              <table class="users-table">
+                <thead>
+                  <tr>
+                    <th>Utilisateur</th>
+                    <th>Email</th>
+                    <th>Crédits</th>
+                    <th>Rôle</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users-body">
+                  <tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--muted)">Chargement...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 </div>
-<div id="toast" dir="ltr"><p><br/>
-<br/>
 
-	</p>
-</div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SUPABASE CONFIG ──
+// 🔧 REMPLACE CES VALEURS PAR TES VRAIES CLÉS SUPABASE
+const SUPABASE_URL = 'https://VOTRE_PROJECT_ID.supabase.co';
+const SUPABASE_ANON_KEY = 'VOTRE_ANON_KEY';
+const ADMIN_USERNAME = 'admin'; // Ton nom d'utilisateur admin
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── STATE ──
+let currentUser = null;
+let currentProfile = null;
+
+// ── NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showPanel(name) {
+  document.querySelectorAll('.main-panel, .buy-panel, .admin-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'admin') loadAdminUsers();
+}
+
+// ── TOAST ──
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── AUTH TABS ──
+function switchTab(tab) {
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('tab-login').className = 'auth-tab' + (tab === 'login' ? ' active' : '');
+  document.getElementById('tab-register').className = 'auth-tab' + (tab === 'register' ? ' active' : '');
+  document.getElementById('auth-status').textContent = '';
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById('auth-status');
+  el.textContent = msg;
+  el.className = `auth-status ${type}`;
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  const username = document.getElementById('login-user').value.trim();
+  const password = document.getElementById('login-pass').value.trim();
+  if (!username || !password) { setStatus('Remplissez tous les champs.', 'error'); return; }
+
+  setStatus('Connexion...', '');
+  try {
+    // Fetch profile by username to get email
+    const { data: profile, error: pErr } = await sb
+      .from('profiles')
+      .select('*')
+      .eq('username', username)
+      .single();
+
+    if (pErr || !profile) { setStatus("Nom d'utilisateur introuvable.", 'error'); return; }
+
+    const { data, error } = await sb.auth.signInWithPassword({
+      email: profile.email,
+      password
+    });
+    if (error) { setStatus('Mot de passe incorrect.', 'error'); return; }
+
+    currentUser = data.user;
+    currentProfile = profile;
+    enterDashboard(profile);
+  } catch(e) {
+    setStatus('Erreur: ' + e.message, 'error');
+  }
+}
+
+// ── REGISTER ──
+async function doRegister() {
+  const username = document.getElementById('reg-user').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-pass').value.trim();
+  const password2 = document.getElementById('reg-pass2').value.trim();
+
+  if (!username || !email || !password) { setStatus('Remplissez tous les champs.', 'error'); return; }
+  if (password !== password2) { setStatus('Les mots de passe ne correspondent pas.', 'error'); return; }
+  if (password.length < 6) { setStatus('Mot de passe trop court (min 6 chars).', 'error'); return; }
+
+  setStatus('Création du compte...', '');
+  try {
+    // Check username unique
+    const { data: existing } = await sb.from('profiles').select('id').eq('username', username).single();
+    if (existing) { setStatus("Nom d'utilisateur déjà pris.", 'error'); return; }
+
+    const { data, error } = await sb.auth.signUp({ email, password });
+    if (error) { setStatus(error.message, 'error'); return; }
+
+    // Create profile
+    await sb.from('profiles').insert({
+      id: data.user.id,
+      username,
+      email,
+      credits: 0,
+      is_admin: username === ADMIN_USERNAME,
+      operations: 0
+    });
+
+    setStatus('Compte créé ! Connectez-vous.', 'success');
+    switchTab('login');
+  } catch(e) {
+    setStatus('Erreur: ' + e.message, 'error');
+  }
+}
+
+// ── DASHBOARD ──
+function enterDashboard(profile) {
+  document.getElementById('dash-username').textContent = profile.username;
+  document.getElementById('nav-username').textContent = '👤 ' + profile.username;
+  document.getElementById('dash-credits').textContent = profile.is_admin ? '∞' : profile.credits;
+  document.getElementById('stat-credits').textContent = profile.is_admin ? '∞' : profile.credits;
+  document.getElementById('stat-ops').textContent = profile.operations || 0;
+  document.getElementById('stat-role').textContent = profile.is_admin ? '⭐ Administrateur' : 'Utilisateur';
+
+  if (profile.is_admin) {
+    document.getElementById('nav-admin').style.display = 'flex';
+  }
+
+  loadHistory(profile.id);
+  showPage('page-dashboard');
+  showPanel('main');
+}
+
+// ── HISTORY ──
+async function loadHistory(userId) {
+  try {
+    const { data, error } = await sb
+      .from('operations')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (error || !data || data.length === 0) return;
+
+    const tbody = document.getElementById('history-body');
+    tbody.innerHTML = data.map(op => `
+      <tr>
+        <td style="font-family:var(--font-mono);font-size:0.8rem;color:var(--muted)">${new Date(op.created_at).toLocaleDateString('fr-FR')}</td>
+        <td>${op.device || 'Samsung'}</td>
+        <td style="color:var(--accent);font-family:var(--font-mono)">-5</td>
+        <td><span class="badge ${op.success ? 'badge-success' : 'badge-fail'}">${op.success ? 'SUCCÈS' : 'ÉCHEC'}</span></td>
+      </tr>
+    `).join('');
+  } catch(e) {}
+}
+
+// ── ADMIN ──
+async function loadAdminUsers() {
+  try {
+    const { data, error } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
+    if (error || !data) return;
+
+    const tbody = document.getElementById('admin-users-body');
+    tbody.innerHTML = data.map(u => `
+      <tr>
+        <td style="font-family:var(--font-mono)">${u.username}</td>
+        <td style="color:var(--muted);font-size:0.8rem">${u.email || '-'}</td>
+        <td style="color:var(--accent);font-family:var(--font-mono);font-weight:700">${u.is_admin ? '∞' : u.credits}</td>
+        <td><span class="badge ${u.is_admin ? '' : 'badge-success'}" style="${u.is_admin ? 'background:rgba(255,208,0,0.1);color:var(--yellow);border:1px solid rgba(255,208,0,0.3)' : ''}">${u.is_admin ? 'ADMIN' : 'USER'}</span></td>
+        <td>${!u.is_admin ? `<button class="btn-del" onclick="deleteUser('${u.id}', '${u.username}')">Supprimer</button>` : ''}</td>
+      </tr>
+    `).join('');
+  } catch(e) {}
+}
+
+async function adminAddCredits() {
+  const target = document.getElementById('admin-target').value.trim();
+  const amount = parseInt(document.getElementById('admin-amount').value);
+  const statusEl = document.getElementById('admin-status');
+
+  if (!target || !amount || amount <= 0) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = 'Remplissez les deux champs correctement.';
+    return;
+  }
+
+  const { data: profile, error } = await sb.from('profiles').select('*').eq('username', target).single();
+  if (error || !profile) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = "Utilisateur introuvable.";
+    return;
+  }
+
+  const newCredits = (profile.credits || 0) + amount;
+  const { error: updateErr } = await sb.from('profiles').update({ credits: newCredits }).eq('id', profile.id);
+  if (updateErr) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = 'Erreur lors de la mise à jour.';
+    return;
+  }
+
+  statusEl.style.color = 'var(--green)';
+  statusEl.textContent = `✅ ${amount} crédits ajoutés à ${target}. Nouveau solde: ${newCredits}`;
+  document.getElementById('admin-target').value = '';
+  document.getElementById('admin-amount').value = '';
+  loadAdminUsers();
+  showToast(`${amount} crédits ajoutés à ${target}`, 'success');
+}
+
+async function deleteUser(userId, username) {
+  if (!confirm(`Supprimer l'utilisateur "${username}" ?`)) return;
+  await sb.from('profiles').delete().eq('id', userId);
+  loadAdminUsers();
+  showToast(`Utilisateur ${username} supprimé`, 'success');
+}
+
+// ── LOGOUT ──
+async function logout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  showPage('page-home');
+  showToast('Déconnexion réussie', 'info');
+}
+
+// ── AUTO LOGIN ──
+async function checkSession() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+    if (profile) {
+      currentProfile = profile;
+      enterDashboard(profile);
+    }
+  }
+}
+
+// ── COUNTER ANIMATION ──
+function animateCounter(el, target, duration = 2000) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start += step;
+    if (start >= target) { el.textContent = target + '+'; clearInterval(timer); }
+    else el.textContent = Math.floor(start);
+  }, 16);
+}
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', () => {
+  checkSession();
+  setTimeout(() => {
+    const el = document.getElementById('counter1');
+    if (el) animateCounter(el, 1247);
+  }, 500);
+});
+</script>
 </body>
 </html>
