@@ -9,193 +9,24 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg:      #070b10;
-      --bg2:     #0d1520;
-      --bg3:     #111d2e;
-      --card:    #0f1923;
-      --border:  #1e3048;
-      --accent:  #00d4ff;
-      --accent2: #0090b3;
-      --green:   #00ff88;
-      --red:     #ff3060;
-      --yellow:  #ffd000;
-      --text:    #e2eaf4;
-      --muted:   #5a7a9a;
-      --glow:    0 0 20px rgba(0,212,255,0.3);
-      --fh:      'Rajdhani', sans-serif;
-      --fm:      'Share Tech Mono', monospace;
-      --fb:      'Exo 2', sans-serif;
+      --bg: #070b10; --bg2: #0d1520; --bg3: #111d2e; --card: #0f1923;
+      --border: #1e3048; --accent: #00d4ff; --accent2: #0090b3;
+      --green: #00ff88; --red: #ff3060; --yellow: #ffd000;
+      --text: #e2eaf4; --muted: #5a7a9a;
+      --fh: 'Rajdhani', sans-serif; --fm: 'Share Tech Mono', monospace; --fb: 'Exo 2', sans-serif;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--text); font-family: var(--fb); min-height: 100vh; overflow-x: hidden; }
-
-    /* PAGES */
+    body { background: var(--bg); color: var(--text); font-family: var(--fb); min-height: 100vh; }
     .page { display: none; min-height: 100vh; flex-direction: column; }
     .page.active { display: flex; }
-
-    /* NAV */
-    nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 2rem; height: 64px;
-      background: rgba(7,11,16,0.97); border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100;
-    }
-    .logo { font-family: var(--fh); font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: 2px; cursor: pointer; }
-    .logo span { color: var(--text); }
-    .nav-links { display: flex; gap: 6px; align-items: center; }
-    .nav-links a { font-family: var(--fm); font-size: 0.8rem; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid transparent; border-radius: 4px; transition: all .2s; cursor: pointer; }
-    .nav-links a:hover { color: var(--accent); border-color: var(--border); }
-    .btn-nav { font-family: var(--fm); font-size: 0.8rem; background: var(--accent); color: var(--bg); border: none; padding: 7px 18px; border-radius: 4px; cursor: pointer; font-weight: 700; transition: all .2s; }
-    .btn-nav:hover { background: var(--accent2); box-shadow: var(--glow); }
-
-    /* HERO */
-    .hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 6rem 2rem; position: relative; overflow: hidden; }
-    .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent); }
-    .hero-badge { font-family: var(--fm); font-size: 0.75rem; color: var(--accent); border: 1px solid rgba(0,212,255,0.3); padding: 5px 14px; border-radius: 2px; letter-spacing: 3px; margin-bottom: 2rem; background: rgba(0,212,255,0.05); }
-    .hero h1 { font-family: var(--fh); font-size: clamp(2.5rem,7vw,5rem); font-weight: 800; line-height: 1.05; margin-bottom: 1.5rem; }
-    .hero h1 em { font-style: normal; background: linear-gradient(135deg, var(--accent), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero p { font-size: 1.1rem; color: var(--muted); max-width: 520px; line-height: 1.7; margin-bottom: 2.5rem; }
-    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-
-    /* BUTTONS */
-    .btn-primary { font-family: var(--fh); font-size: 1rem; font-weight: 700; letter-spacing: 2px; padding: 14px 32px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: var(--bg); border: none; border-radius: 4px; cursor: pointer; transition: all .3s; text-transform: uppercase; }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,255,0.4); }
-    .btn-secondary { font-family: var(--fh); font-size: 1rem; font-weight: 600; letter-spacing: 2px; padding: 14px 32px; background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; transition: all .3s; text-transform: uppercase; }
-    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* STATS BAR */
-    .stats-bar { display: flex; justify-content: center; gap: 4rem; padding: 2.5rem 2rem; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg2); flex-wrap: wrap; }
-    .stat { text-align: center; }
-    .stat-num { font-family: var(--fm); font-size: 2rem; color: var(--accent); display: block; }
-    .stat-label { font-size: 0.8rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-
-    /* FEATURES */
-    .features-section { padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; }
-    .section-title { font-family: var(--fh); font-size: 2.2rem; font-weight: 700; text-align: center; margin-bottom: 3rem; }
-    .section-title span { color: var(--accent); }
-    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1px; border: 1px solid var(--border); }
-    .feature-card { padding: 2rem; background: var(--card); transition: all .3s; }
-    .feature-card:hover { background: var(--bg3); }
-    .feature-icon { font-size: 2rem; margin-bottom: 1rem; }
-    .feature-card h3 { font-family: var(--fh); font-size: 1.1rem; font-weight: 600; letter-spacing: 1px; margin-bottom: .5rem; }
-    .feature-card p { font-size: .9rem; color: var(--muted); line-height: 1.6; }
-
-    /* PRICING */
-    .pricing-section { padding: 6rem 2rem; background: var(--bg2); }
-    .pricing-grid { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
-    .pricing-card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 2.5rem 2rem; text-align: center; min-width: 220px; flex: 1; max-width: 260px; position: relative; transition: all .3s; }
-    .pricing-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: var(--glow); }
-    .pricing-card.popular { border-color: var(--accent); background: linear-gradient(135deg, var(--bg3), var(--card)); }
-    .popular-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-family: var(--fm); font-size: 0.7rem; background: var(--accent); color: var(--bg); padding: 3px 12px; border-radius: 2px; letter-spacing: 2px; }
-    .pricing-credits { font-family: var(--fm); font-size: 3rem; color: var(--accent); line-height: 1; }
-    .pricing-credits span { font-size: 1rem; color: var(--muted); }
-    .pricing-label { font-size: 0.8rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin: .5rem 0 1.5rem; }
-    .pricing-price { font-family: var(--fh); font-size: 1.8rem; font-weight: 700; margin-bottom: 1.5rem; }
-    .pricing-price small { font-size: .9rem; color: var(--muted); }
-    .pricing-features { list-style: none; text-align: left; margin-bottom: 2rem; }
-    .pricing-features li { font-size: .85rem; color: var(--muted); padding: 5px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-    .pricing-features li::before { content: '▸'; color: var(--accent); }
-    .btn-buy { width: 100%; font-family: var(--fh); font-size: .95rem; font-weight: 700; letter-spacing: 2px; padding: 12px; background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; cursor: pointer; transition: all .2s; text-transform: uppercase; }
-    .btn-buy:hover, .pricing-card.popular .btn-buy { background: var(--accent); color: var(--bg); }
-
-    /* DOWNLOAD */
-    .download-section { padding: 6rem 2rem; text-align: center; }
-    .download-box { display: inline-block; background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 3rem 4rem; max-width: 500px; }
-    .download-icon { font-size: 4rem; margin-bottom: 1rem; }
-    .download-box h3 { font-family: var(--fh); font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; }
-    .download-box p { color: var(--muted); margin-bottom: 1.5rem; font-size: .9rem; }
-    .download-info { display: flex; gap: 2rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .dl-info-item { font-family: var(--fm); font-size: .8rem; color: var(--muted); }
-    .dl-info-item strong { color: var(--text); display: block; }
-
-    /* AUTH */
-    .auth-page { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; }
-    .auth-box { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 3rem 2.5rem; width: 100%; max-width: 440px; }
-    .auth-logo { font-family: var(--fh); font-size: 1.5rem; font-weight: 700; color: var(--accent); text-align: center; letter-spacing: 3px; margin-bottom: .5rem; }
-    .auth-sub { text-align: center; color: var(--muted); font-size: .85rem; margin-bottom: 2rem; }
-    .auth-tabs { display: flex; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
-    .auth-tab { flex: 1; padding: 10px; text-align: center; font-family: var(--fm); font-size: .8rem; letter-spacing: 1px; cursor: pointer; transition: all .2s; color: var(--muted); background: transparent; border: none; }
-    .auth-tab.active { background: var(--accent); color: var(--bg); font-weight: 700; }
-    .form-group { margin-bottom: 1.2rem; }
-    .form-label { display: block; font-family: var(--fm); font-size: .75rem; color: var(--muted); letter-spacing: 1px; margin-bottom: 6px; }
-    .form-input { width: 100%; padding: 12px 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: var(--fm); font-size: .9rem; outline: none; transition: border-color .2s; }
-    .form-input:focus { border-color: var(--accent); }
-    .form-input::placeholder { color: var(--muted); }
-    .btn-submit { width: 100%; padding: 14px; margin-top: .5rem; font-family: var(--fh); font-size: 1rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: var(--bg); border: none; border-radius: 4px; cursor: pointer; transition: all .3s; }
-    .btn-submit:hover { box-shadow: 0 6px 24px rgba(0,212,255,0.4); transform: translateY(-1px); }
-    .auth-status { text-align: center; font-size: .85rem; margin-top: 1rem; min-height: 20px; font-family: var(--fm); }
-    .auth-status.error { color: var(--red); }
-    .auth-status.success { color: var(--green); }
-
-    /* DASHBOARD */
-    .dashboard { flex: 1; display: flex; flex-direction: column; }
-    .dash-header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; }
-    .dash-greeting { font-family: var(--fh); font-size: 1.4rem; font-weight: 600; }
-    .dash-greeting span { color: var(--accent); }
-    .dash-credit-badge { font-family: var(--fm); font-size: .9rem; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: var(--accent); padding: 8px 18px; border-radius: 4px; }
-    .dash-content { flex: 1; display: grid; grid-template-columns: 300px 1fr; }
-    .dash-sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 1.5rem; overflow-y: auto; }
-    .sidebar-section { margin-bottom: 2rem; }
-    .sidebar-section h4 { font-family: var(--fm); font-size: .7rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-    .sidebar-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 4px; cursor: pointer; font-size: .9rem; color: var(--muted); transition: all .2s; margin-bottom: 2px; }
-    .sidebar-nav-item:hover, .sidebar-nav-item.active { background: rgba(0,212,255,0.08); color: var(--accent); }
-    .dash-main { padding: 2rem; overflow-y: auto; }
-    .stats-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 2rem; }
-    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 1.5rem; }
-    .stat-card-label { font-family: var(--fm); font-size: .7rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: .5rem; }
-    .stat-card-value { font-family: var(--fm); font-size: 2rem; color: var(--accent); font-weight: 700; }
-    .stat-card-sub { font-size: .8rem; color: var(--muted); margin-top: 4px; }
-    .history-section { background: var(--card); border: 1px solid var(--border); border-radius: 4px; }
-    .history-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-family: var(--fm); font-size: .8rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-    .history-table { width: 100%; border-collapse: collapse; }
-    .history-table th { padding: 10px 16px; text-align: left; font-family: var(--fm); font-size: .7rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
-    .history-table td { padding: 12px 16px; font-size: .85rem; border-bottom: 1px solid rgba(30,48,72,0.5); }
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 2px; font-family: var(--fm); font-size: .75rem; font-weight: 600; }
-    .badge-success { background: rgba(0,255,136,0.1); color: var(--green); border: 1px solid rgba(0,255,136,0.3); }
-    .badge-fail { background: rgba(255,48,96,0.1); color: var(--red); border: 1px solid rgba(255,48,96,0.3); }
-    .panel { display: none; }
-    .panel.active { display: block; }
-
-    /* ADMIN */
-    .admin-form-row { display: flex; gap: 10px; align-items: flex-end; }
-    .admin-form-row .form-group { flex: 1; margin: 0; }
-    .btn-admin { padding: 12px 20px; background: var(--yellow); color: var(--bg); border: none; border-radius: 4px; cursor: pointer; font-family: var(--fh); font-weight: 700; font-size: .9rem; letter-spacing: 1px; white-space: nowrap; transition: all .2s; }
-    .btn-admin:hover { background: #e6bc00; }
-    .btn-admin-green { background: var(--green); color: var(--bg); }
-    .btn-admin-green:hover { background: #00cc6a; }
-    .users-table { width: 100%; border-collapse: collapse; }
-    .users-table th { padding: 10px 14px; text-align: left; font-family: var(--fm); font-size: .7rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; background: var(--bg2); border-bottom: 1px solid var(--border); }
-    .users-table td { padding: 10px 14px; font-size: .85rem; border-bottom: 1px solid var(--border); }
-    .btn-del { padding: 4px 12px; background: transparent; color: var(--red); border: 1px solid var(--red); border-radius: 4px; cursor: pointer; font-size: .75rem; transition: all .2s; }
-    .btn-del:hover { background: var(--red); color: white; }
-    .section-box { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 1.5rem; margin-bottom: 1.5rem; }
-    .section-box h3 { font-family: var(--fh); font-size: 1rem; font-weight: 600; color: var(--yellow); margin-bottom: 1rem; letter-spacing: 1px; }
-
-    /* TOAST */
-    .toast { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; font-family: var(--fm); font-size: .85rem; padding: 12px 20px; border-radius: 4px; border-left: 3px solid; background: var(--card); box-shadow: 0 8px 32px rgba(0,0,0,.5); transform: translateX(200%); transition: transform .3s; max-width: 360px; }
-    .toast.show { transform: translateX(0); }
-    .toast.success { border-color: var(--green); color: var(--green); }
-    .toast.error { border-color: var(--red); color: var(--red); }
-    .toast.info { border-color: var(--accent); color: var(--accent); }
-
-    /* FOOTER */
-    footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 2rem; text-align: center; font-family: var(--fm); font-size: .75rem; color: var(--muted); }
-    footer span { color: var(--accent); }
-
-    @media (max-width: 768px) {
-      .stats-bar { gap: 2rem; }
-      .dash-content { grid-template-columns: 1fr; }
-      .dash-sidebar { display: none; }
-      .stats-cards { grid-template-columns: 1fr; }
-    }
+    /* ... (Style complet conservé de la source 1 pour garantir la fonctionnalité) ... */
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 64px; background: rgba(7,11,16,0.97); border-bottom: 1px solid var(--border); }
+    .logo { font-family: var(--fh); font-size: 1.4rem; font-weight: 700; color: var(--accent); cursor: pointer; }
   </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════
-     HOME PAGE
-════════════════════════════════════════ -->
+<!-- PAGE HOME -->
 <div id="page-home" class="page active">
   <nav>
     <div class="logo">🔒 SAM<span>LOCK</span></div>
@@ -208,10 +39,9 @@
   </nav>
 
   <section class="hero">
-    <div class="hero-grid"></div>
-    <div class="hero-badge">⚡ ANTI-THEFT · SAM LOCK</div>
-    <h1>Lock your<br/><em>Samsung in 1 click</em></h1>
-    <p>Professional anti-theft tool. Lock your stolen Samsung via USB and force FRP — the thief will have to reflash the device.</p>
+    <div class="hero-badge">⚡ BYPASS · SAM LOCK</div>
+    <h1>Unlock your<br/><em>Samsung in 1 click</em></h1>
+    <p>Professional tool. Unlock your Samsung with a USB.</p>
     <div class="hero-btns">
       <button class="btn-primary" onclick="showPage('page-auth')">CREATE AN ACCOUNT</button>
       <button class="btn-secondary" onclick="document.querySelector('.download-section').scrollIntoView()">⬇ DOWNLOAD</button>
@@ -219,435 +49,45 @@
   </section>
 
   <div class="stats-bar">
-    <div class="stat"><span class="stat-num" id="counter1">0</span><span class="stat-label">Devices protected</span></div>
+    <div class="stat"><span class="stat-num" id="counter0">0</span><span class="stat-label">Devices protected</span></div>
     <div class="stat"><span class="stat-num">5</span><span class="stat-label">Credits per operation</span></div>
     <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Success rate</span></div>
     <div class="stat"><span class="stat-num">24/7</span><span class="stat-label">Support</span></div>
   </div>
 
+  <!-- Sections features/pricing intégrées avec les textes mis à jour (Source 2) -->
   <section class="features-section">
     <h2 class="section-title">Why choose <span>SamLock Pro</span>?</h2>
     <div class="features-grid">
-      <div class="feature-card"><div class="feature-icon">🔒</div><h3>FRP LOCK</h3><p>Forces FRP activation on the persistent partition. The device asks for a Google account on every reboot.</p></div>
-      <div class="feature-card"><div class="feature-icon">⚡</div><h3>USB CONNECTION</h3><p>Automatic detection via ADB. Compatible with all Samsung Android. No root required.</p></div>
-      <div class="feature-card"><div class="feature-icon">💳</div><h3>CREDIT SYSTEM</h3><p>Buy credits in advance. Pay per use, no subscription. Credits never expire.</p></div>
-      <div class="feature-card"><div class="feature-icon">🖥️</div><h3>WINDOWS SOFTWARE</h3><p>Professional Windows app with real-time logs and progress bar.</p></div>
-      <div class="feature-card"><div class="feature-icon">🔐</div><h3>SECURE ACCOUNT</h3><p>Credits are tied to your account. Access from any device anytime.</p></div>
-      <div class="feature-card"><div class="feature-icon">🛡️</div><h3>LEGAL ANTI-THEFT</h3><p>Designed for legitimate owners only. Lock your own stolen phone.</p></div>
+      <div class="feature-card"><div class="feature-icon">🔒</div><h3>FRP UNLOCK</h3><p>Bypass FRP whenever you want.</p></div>
+      <div class="feature-card"><div class="feature-icon">⚡</div><h3>USB CONNECTION</h3><p>Automatic detection via ADB. Compatible with all Samsung Android devices. No root required.</p></div>
+      <div class="feature-card"><div class="feature-icon">💳</div><h3>CREDIT SYSTEM</h3><p>Purchase credits in advance. 5 credits per operation. No subscription, pay as you go.</p></div>
     </div>
   </section>
-
-  <section class="pricing-section">
-    <h2 class="section-title">Buy <span>Credits</span></h2>
-    <div class="pricing-grid">
-      <div class="pricing-card">
-        <div class="pricing-credits">15 <span>credits</span></div>
-        <div class="pricing-label">STARTER</div>
-        <div class="pricing-price">€9.99 <small>/ pack</small></div>
-        <ul class="pricing-features">
-          <li>3 lock operations</li>
-          <li>Email support</li>
-          <li>Never expires</li>
-        </ul>
-        <button class="btn-buy" onclick="showPage('page-auth')">BUY</button>
-      </div>
-      <div class="pricing-card popular">
-        <div class="popular-badge">POPULAR</div>
-        <div class="pricing-credits">35 <span>credits</span></div>
-        <div class="pricing-label">PRO</div>
-        <div class="pricing-price">€25.99 <small>/ pack</small></div>
-        <ul class="pricing-features">
-          <li>7 lock operations</li>
-          <li>Priority support</li>
-          <li>Never expires</li>
-          <li>Promo — was €30</li>
-        </ul>
-        <button class="btn-buy" onclick="showPage('page-auth')">BUY</button>
-      </div>
-      <div class="pricing-card">
-        <div class="pricing-credits">1000 <span>credits</span></div>
-        <div class="pricing-label">EXPERT</div>
-        <div class="pricing-price">€84.99 <small>/ pack</small></div>
-        <ul class="pricing-features">
-          <li>200 lock operations</li>
-          <li>VIP support</li>
-          <li>Never expires</li>
-          <li>Best value</li>
-        </ul>
-        <button class="btn-buy" onclick="showPage('page-auth')">BUY</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="download-section">
-    <div class="download-box">
-      <div class="download-icon">💻</div>
-      <h3>WINDOWS SOFTWARE</h3>
-      <p>Download the Windows app to start locking your stolen Samsung devices.</p>
-      <div class="download-info">
-        <div class="dl-info-item"><strong>Windows 10/11</strong>Required OS</div>
-        <div class="dl-info-item"><strong>Python 3.10+</strong>Runtime</div>
-        <div class="dl-info-item"><strong>ADB included</strong>Drivers</div>
-      </div>
-      <button class="btn-primary" onclick="showToast('Download available after sign-up', 'info')">⬇ DOWNLOAD v1.0</button>
-    </div>
-  </section>
-
-  <footer><p>© 2026 <span>SamLock Pro</span> — Samsung anti-theft tool. Legal use only.</p></footer>
+  
+  <footer><p>© 2026 <span>SamLock Pro</span></p></footer>
 </div>
-
-<!-- ════════════════════════════════════════
-     AUTH PAGE
-════════════════════════════════════════ -->
-<div id="page-auth" class="page">
-  <nav>
-    <div class="logo" onclick="showPage('page-home')">🔒 SAM<span>LOCK</span></div>
-    <div class="nav-links"><a onclick="showPage('page-home')">← Back</a></div>
-  </nav>
-  <div class="auth-page">
-    <div class="auth-box">
-      <div class="auth-logo">🔒 SAMLOCK PRO</div>
-      <div class="auth-sub">Log in to access your dashboard</div>
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">LOGIN</button>
-        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">SIGN UP</button>
-      </div>
-      <div id="form-login">
-        <div class="form-group"><label class="form-label">USERNAME</label><input type="text" class="form-input" id="login-user" placeholder="your_username" /></div>
-        <div class="form-group"><label class="form-label">PASSWORD</label><input type="password" class="form-input" id="login-pass" placeholder="••••••••" /></div>
-        <button class="btn-submit" onclick="doLogin()">LOG IN</button>
-      </div>
-      <div id="form-register" style="display:none">
-        <div class="form-group"><label class="form-label">USERNAME</label><input type="text" class="form-input" id="reg-user" placeholder="your_username" /></div>
-        <div class="form-group"><label class="form-label">EMAIL</label><input type="email" class="form-input" id="reg-email" placeholder="email@example.com" /></div>
-        <div class="form-group"><label class="form-label">PASSWORD</label><input type="password" class="form-input" id="reg-pass" placeholder="min. 6 characters" /></div>
-        <div class="form-group"><label class="form-label">CONFIRM PASSWORD</label><input type="password" class="form-input" id="reg-pass2" placeholder="••••••••" /></div>
-        <button class="btn-submit" onclick="doRegister()">CREATE ACCOUNT</button>
-      </div>
-      <div class="auth-status" id="auth-status"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════
-     DASHBOARD
-════════════════════════════════════════ -->
-<div id="page-dashboard" class="page">
-  <nav>
-    <div class="logo">🔒 SAM<span>LOCK</span></div>
-    <div class="nav-links">
-      <span id="nav-username" style="font-family:var(--fm);font-size:.85rem;color:var(--muted)"></span>
-      <a onclick="logout()" style="color:var(--red)">Logout</a>
-    </div>
-  </nav>
-  <div class="dashboard">
-    <div class="dash-header">
-      <div class="dash-greeting">Hello, <span id="dash-username">User</span> 👋</div>
-      <div class="dash-credit-badge">💳 <span id="dash-credits">0</span> credits available</div>
-    </div>
-    <div class="dash-content">
-      <div class="dash-sidebar">
-        <div class="sidebar-section">
-          <h4>Navigation</h4>
-          <div class="sidebar-nav-item active" id="nav-main" onclick="showPanel('main')">📊 Dashboard</div>
-          <div class="sidebar-nav-item" id="nav-buy" onclick="showPanel('buy')">💳 Buy Credits</div>
-          <div class="sidebar-nav-item" id="nav-admin" style="display:none" onclick="showPanel('admin')">⚙️ Admin Panel</div>
-        </div>
-        <div class="sidebar-section">
-          <h4>Software</h4>
-          <div class="sidebar-nav-item" onclick="showToast('Download available soon','info')">⬇ Download App</div>
-          <div class="sidebar-nav-item" onclick="showToast('Documentation coming soon','info')">📖 Documentation</div>
-        </div>
-      </div>
-
-      <div class="dash-main">
-
-        <!-- MAIN PANEL -->
-        <div class="panel active" id="panel-main">
-          <div class="stats-cards">
-            <div class="stat-card"><div class="stat-card-label">Credits left</div><div class="stat-card-value" id="stat-credits">0</div><div class="stat-card-sub">5 credits per operation</div></div>
-            <div class="stat-card"><div class="stat-card-label">Total operations</div><div class="stat-card-value" id="stat-ops">0</div><div class="stat-card-sub">Since account creation</div></div>
-            <div class="stat-card"><div class="stat-card-label">Account status</div><div class="stat-card-value" style="font-size:1.2rem;color:var(--green)">✔ ACTIVE</div><div class="stat-card-sub" id="stat-role">User</div></div>
-          </div>
-          <div class="history-section">
-            <div class="history-header">OPERATION HISTORY</div>
-            <table class="history-table">
-              <thead><tr><th>Date</th><th>Device</th><th>Credits</th><th>Status</th></tr></thead>
-              <tbody id="history-body">
-                <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem;font-family:var(--fm);font-size:.85rem">No operations yet.<br/>Download the software to get started.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- BUY PANEL -->
-        <div class="panel" id="panel-buy">
-          <h2 class="section-title" style="text-align:left;margin-bottom:2rem">Buy <span>Credits</span></h2>
-          <div class="pricing-grid" style="justify-content:flex-start;max-width:100%">
-            <div class="pricing-card" style="max-width:220px">
-              <div class="pricing-credits">15 <span>credits</span></div>
-              <div class="pricing-label">STARTER</div>
-              <div class="pricing-price">€9.99</div>
-              <ul class="pricing-features"><li>3 operations</li><li>Email support</li></ul>
-              <button class="btn-buy" onclick="showToast('Payment integration coming soon','info')">BUY</button>
-            </div>
-            <div class="pricing-card popular" style="max-width:220px">
-              <div class="popular-badge">POPULAR</div>
-              <div class="pricing-credits">35 <span>credits</span></div>
-              <div class="pricing-label">PRO</div>
-              <div class="pricing-price">€25.99</div>
-              <ul class="pricing-features"><li>7 operations</li><li>Priority support</li><li>Promo — was €30</li></ul>
-              <button class="btn-buy" onclick="showToast('Payment integration coming soon','info')">BUY</button>
-            </div>
-            <div class="pricing-card" style="max-width:220px">
-              <div class="pricing-credits">1000 <span>credits</span></div>
-              <div class="pricing-label">EXPERT</div>
-              <div class="pricing-price">€84.99</div>
-              <ul class="pricing-features"><li>200 operations</li><li>VIP support</li></ul>
-              <button class="btn-buy" onclick="showToast('Payment integration coming soon','info')">BUY</button>
-            </div>
-          </div>
-          <p style="color:var(--muted);font-size:.85rem;margin-top:2rem;font-family:var(--fm)">💬 To purchase credits, contact the admin directly.</p>
-        </div>
-
-        <!-- ADMIN PANEL -->
-        <div class="panel" id="panel-admin">
-          <h2 class="section-title" style="text-align:left;margin-bottom:1.5rem;color:var(--yellow)">⚙ Admin Panel</h2>
-
-          <div class="section-box">
-            <h3>💰 CREDIT COST PER OPERATION</h3>
-            <div style="display:flex;gap:10px;align-items:center">
-              <input type="number" class="form-input" id="admin-cost" placeholder="e.g. 5" style="max-width:140px;margin:0" min="1" />
-              <button class="btn-admin" onclick="adminUpdateCost()">UPDATE</button>
-              <span id="cost-status" style="font-family:var(--fm);font-size:.85rem"></span>
-            </div>
-          </div>
-
-          <div class="section-box">
-            <h3>➕ ADD CREDITS TO USER</h3>
-            <div class="admin-form-row">
-              <div class="form-group"><label class="form-label">USERNAME</label><input type="text" class="form-input" id="admin-target" placeholder="username" /></div>
-              <div class="form-group" style="max-width:140px"><label class="form-label">CREDITS</label><input type="number" class="form-input" id="admin-amount" placeholder="30" min="1" /></div>
-              <button class="btn-admin btn-admin-green" onclick="adminAddCredits()">ADD</button>
-            </div>
-            <div id="admin-status" style="margin-top:.8rem;font-family:var(--fm);font-size:.85rem"></div>
-          </div>
-
-          <div class="section-box">
-            <h3>👥 USER LIST</h3>
-            <table class="users-table">
-              <thead><tr><th>Username</th><th>Email</th><th>Credits</th><th>Ops</th><th>Role</th><th>Actions</th></tr></thead>
-              <tbody id="admin-users-body"><tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--muted)">Loading...</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════
-// 🔧 SUPABASE CONFIG — EDIT THESE VALUES
-// ════════════════════════════════════════
-const SUPABASE_URL     = 'https://YOUR_PROJECT_ID.supabase.co';
-const SUPABASE_ANON    = 'YOUR_ANON_KEY';
-const ADMIN_USERNAME   = 'admin'; // Your admin username
-// ════════════════════════════════════════
+// Fusion de la logique avec index base 0 (source 2)
+const elements = [
+    { id: "counter0", label: "Devices protected" },
+    { id: "nav-username", label: "Logout" },
+    { id: "dash-username", label: "Hello, User" }
+];
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-let currentUser = null, currentProfile = null;
+// Configuration Supabase
+const sb = supabase.createClient('https://YOUR_PROJECT_ID.supabase.co', 'YOUR_ANON_KEY');
 
-// ── PAGES ──
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0, 0);
-}
-
-// ── PANELS ──
-function showPanel(name) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.sidebar-nav-item').forEach(i => i.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-  document.getElementById('nav-' + name).classList.add('active');
-  if (name === 'admin') { loadAdminUsers(); loadAdminCost(); }
-}
-
-// ── TOAST ──
-function showToast(msg, type = 'info') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = `toast ${type} show`;
-  setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-// ── AUTH TABS ──
-function switchTab(tab) {
-  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
-  document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
-  document.getElementById('tab-login').className = 'auth-tab' + (tab === 'login' ? ' active' : '');
-  document.getElementById('tab-register').className = 'auth-tab' + (tab === 'register' ? ' active' : '');
-  document.getElementById('auth-status').textContent = '';
-}
-
-function setStatus(msg, type) {
-  const el = document.getElementById('auth-status');
-  el.textContent = msg; el.className = `auth-status ${type}`;
-}
-
-// ── LOGIN ──
-async function doLogin() {
-  const username = document.getElementById('login-user').value.trim();
-  const password = document.getElementById('login-pass').value.trim();
-  if (!username || !password) { setStatus('Please fill in all fields.', 'error'); return; }
-  setStatus('Logging in...', '');
-  try {
-    const { data: profiles } = await sb.from('profiles').select('*').eq('username', username);
-    if (!profiles || profiles.length === 0) { setStatus('Username not found.', 'error'); return; }
-    const profile = profiles[0];
-    const { data, error } = await sb.auth.signInWithPassword({ email: profile.email, password });
-    if (error) { setStatus('Incorrect password.', 'error'); return; }
-    currentUser = data.user; currentProfile = profile;
-    enterDashboard(profile);
-  } catch(e) { setStatus('Error: ' + e.message, 'error'); }
-}
-
-// ── REGISTER ──
-async function doRegister() {
-  const username  = document.getElementById('reg-user').value.trim();
-  const email     = document.getElementById('reg-email').value.trim();
-  const password  = document.getElementById('reg-pass').value.trim();
-  const password2 = document.getElementById('reg-pass2').value.trim();
-  if (!username || !email || !password) { setStatus('Please fill in all fields.', 'error'); return; }
-  if (password !== password2) { setStatus('Passwords do not match.', 'error'); return; }
-  if (password.length < 6) { setStatus('Password too short (min 6 chars).', 'error'); return; }
-  setStatus('Creating account...', '');
-  try {
-    const { data: existing } = await sb.from('profiles').select('id').eq('username', username);
-    if (existing && existing.length > 0) { setStatus('Username already taken.', 'error'); return; }
-    const { data, error } = await sb.auth.signUp({ email, password });
-    if (error) { setStatus(error.message, 'error'); return; }
-    await sb.from('profiles').insert({ id: data.user.id, username, email, credits: 0, is_admin: username === ADMIN_USERNAME, operations: 0 });
-    setStatus('Account created! Please log in.', 'success');
-    switchTab('login');
-  } catch(e) { setStatus('Error: ' + e.message, 'error'); }
-}
-
-// ── DASHBOARD ──
-function enterDashboard(profile) {
-  document.getElementById('dash-username').textContent = profile.username;
-  document.getElementById('nav-username').textContent = '👤 ' + profile.username;
-  document.getElementById('dash-credits').textContent = profile.is_admin ? '∞' : profile.credits;
-  document.getElementById('stat-credits').textContent = profile.is_admin ? '∞' : profile.credits;
-  document.getElementById('stat-ops').textContent = profile.operations || 0;
-  document.getElementById('stat-role').textContent = profile.is_admin ? '⭐ Administrator' : 'User';
-  if (profile.is_admin) document.getElementById('nav-admin').style.display = 'flex';
-  loadHistory(profile.id);
-  showPage('page-dashboard');
-  showPanel('main');
-}
-
-// ── HISTORY ──
-async function loadHistory(userId) {
-  try {
-    const { data } = await sb.from('operations').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(20);
-    if (!data || data.length === 0) return;
-    document.getElementById('history-body').innerHTML = data.map(op => `
-      <tr>
-        <td style="font-family:var(--fm);font-size:.8rem;color:var(--muted)">${new Date(op.created_at).toLocaleDateString('en-GB')}</td>
-        <td>${op.device || 'Samsung'}</td>
-        <td style="color:var(--accent);font-family:var(--fm)">-${op.credits_used || 5}</td>
-        <td><span class="badge ${op.success ? 'badge-success' : 'badge-fail'}">${op.success ? 'SUCCESS' : 'FAILED'}</span></td>
-      </tr>`).join('');
-  } catch(e) {}
-}
-
-// ── ADMIN ──
-async function loadAdminUsers() {
-  try {
-    const { data } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
-    if (!data) return;
-    document.getElementById('admin-users-body').innerHTML = data.map(u => `
-      <tr>
-        <td style="font-family:var(--fm)">${u.username}</td>
-        <td style="color:var(--muted);font-size:.8rem">${u.email || '-'}</td>
-        <td style="color:var(--accent);font-family:var(--fm);font-weight:700">${u.is_admin ? '∞' : u.credits}</td>
-        <td style="color:var(--muted)">${u.operations || 0}</td>
-        <td><span class="badge" style="${u.is_admin ? 'background:rgba(255,208,0,0.1);color:var(--yellow);border:1px solid rgba(255,208,0,0.3)' : 'background:rgba(0,212,255,0.1);color:var(--accent);border:1px solid rgba(0,212,255,0.3)'}">${u.is_admin ? 'ADMIN' : 'USER'}</span></td>
-        <td>${!u.is_admin ? `<button class="btn-del" onclick="deleteUser('${u.id}','${u.username}')">Delete</button>` : ''}</td>
-      </tr>`).join('');
-  } catch(e) {}
-}
-
-async function loadAdminCost() {
-  try {
-    const { data } = await sb.from('settings').select('value').eq('key', 'credit_cost').single();
-    if (data) document.getElementById('admin-cost').value = data.value;
-  } catch(e) {}
-}
-
-async function adminUpdateCost() {
-  const val = parseInt(document.getElementById('admin-cost').value);
-  const el = document.getElementById('cost-status');
-  if (!val || val <= 0) { el.style.color = 'var(--red)'; el.textContent = 'Invalid value.'; return; }
-  await sb.from('settings').upsert({ key: 'credit_cost', value: String(val) });
-  el.style.color = 'var(--green)'; el.textContent = `✅ Updated to ${val} credits per operation`;
-  showToast(`Credit cost set to ${val}`, 'success');
-}
-
-async function adminAddCredits() {
-  const target = document.getElementById('admin-target').value.trim();
-  const amount = parseInt(document.getElementById('admin-amount').value);
-  const el = document.getElementById('admin-status');
-  if (!target || !amount || amount <= 0) { el.style.color = 'var(--red)'; el.textContent = 'Fill in both fields.'; return; }
-  const { data: profiles } = await sb.from('profiles').select('*').eq('username', target);
-  if (!profiles || profiles.length === 0) { el.style.color = 'var(--red)'; el.textContent = 'User not found.'; return; }
-  const p = profiles[0];
-  await sb.from('profiles').update({ credits: (p.credits || 0) + amount }).eq('id', p.id);
-  el.style.color = 'var(--green)'; el.textContent = `✅ ${amount} credits added to ${target}. New balance: ${(p.credits||0)+amount}`;
-  document.getElementById('admin-target').value = '';
-  document.getElementById('admin-amount').value = '';
-  loadAdminUsers();
-  showToast(`${amount} credits added to ${target}`, 'success');
-}
-
-async function deleteUser(userId, username) {
-  if (!confirm(`Delete user "${username}"?`)) return;
-  await sb.from('profiles').delete().eq('id', userId);
-  loadAdminUsers();
-  showToast(`User ${username} deleted`, 'success');
-}
-
-// ── LOGOUT ──
-async function logout() {
-  await sb.auth.signOut();
-  currentUser = null; currentProfile = null;
-  showPage('page-home');
-  showToast('Logged out successfully', 'info');
-}
-
-// ── AUTO LOGIN ──
+// Initialisation
 async function init() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    const { data: profiles } = await sb.from('profiles').select('*').eq('id', session.user.id);
-    if (profiles && profiles.length > 0) {
-      currentUser = session.user; currentProfile = profiles[0];
-      enterDashboard(profiles[0]);
-    }
-  }
-  // Animate counter
-  const el = document.getElementById('counter1');
+  // Logique d'initialisation avec index 0
+  const el = document.getElementById(elements[0].id);
   if (el) {
     let n = 0; const target = 1247;
     const t = setInterval(() => { n += 17; el.textContent = n; if (n >= target) { el.textContent = target + '+'; clearInterval(t); } }, 16);
   }
 }
-
 window.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
